@@ -137,39 +137,36 @@ class ytdata:
               conn=mysql.connect(host='localhost', password='Thayar@123',user='root', database='youtube_data')
               if conn.is_connected():
                 st.write("connection established....")
-        ##channel list
-              youtube=build('youtube','v3',developerKey=API_KEY)
-              data=ytdata(youtube,Channel_id,None,None)
-              channeldata=data.get_ytchannel_stats()
-              channeldf=pd.DataFrame(channeldata)
-              mycursor=conn.cursor()
-
-              for item in channeldata :
-                channel_id=item["Channel_Id"]
-                channel_name=item["Channel_Name"]
-                channel_type=item["Channel_Type"]
-                channel_views=item["Channel_Views"]
-                channel_description=item["Channel_Description"]
-                channel_status=item["Channel_Status"]
-                query="insert into channel values("+"'"+channel_id+"'"+","+"'"+channel_name+"'"+","+"'"+channel_type+"'"+","+channel_views+","+"'"+channel_description+"'"+","+"'"+channel_status+"'"+")"
-                mycursor.execute(query)
-                conn.commit()
-                st.write("channel data inserted")
-
-             #VideoIds from Playlist item
-              playlistid=channeldf["PlayList_Id"].values[0]
-              data=ytdata(youtube,None,playlistid,None)
-              video_ids=data.get_videos_playList_ids()
-              unique_playlist=list({v['PlaylistId']:v for v in video_ids }.values())
+                youtube=build('youtube','v3',developerKey=API_KEY)
+                data=ytdata(youtube,Channel_id,None,None)
+                channeldata=data.get_ytchannel_stats()
+                channeldf=pd.DataFrame(channeldata)
+                mycursor=conn.cursor()
+                for item in channeldata :
+                    channel_id=item["Channel_Id"]
+                    channel_name=item["Channel_Name"]
+                    channel_type=item["Channel_Type"]
+                    channel_views=item["Channel_Views"]
+                    channel_description=item["Channel_Description"]
+                    channel_status=item["Channel_Status"]
+                    query="insert into channel values("+"'"+channel_id+"'"+","+"'"+channel_name+"'"+","+"'"+channel_type+"'"+","+channel_views+","+"'"+channel_description+"'"+","+"'"+channel_status+"'"+")"
+                    mycursor.execute(query)
+                    conn.commit()
+                    st.write("channel data inserted")
+               #VideoIds from Playlist item
+                playlistid=channeldf["PlayList_Id"].values[0]
+                data=ytdata(youtube,None,playlistid,None)
+                video_ids=data.get_videos_playList_ids()
+                unique_playlist=list({v['PlaylistId']:v for v in video_ids }.values())
               #videos_list_df=pd.DataFrame(video_ids)
-              for item in unique_playlist :
-                 playlist_id=item["PlaylistId"]
-                 channel_id=item["ChannelID"]
-                 playlist_name=item["Title"]
-                 query="insert into playlist values("+"'"+playlist_id+"'"+","+"'"+channel_id+"'"+","+"'"+playlist_name+"'"+")"
-                 mycursor.execute(query)
-                 conn.commit()
-                 st.write("Playlist data inserted")
+                for item in unique_playlist :
+                    playlist_id=item["PlaylistId"]
+                    channel_id=item["ChannelID"]
+                    playlist_name=item["Title"]
+                    query="insert into playlist values("+"'"+playlist_id+"'"+","+"'"+channel_id+"'"+","+"'"+playlist_name+"'"+")"
+                    mycursor.execute(query)
+                    conn.commit()
+                    st.write("Playlist data inserted")
 
                 ##Retrieve Video details
               videolist=[]
@@ -202,19 +199,18 @@ class ytdata:
                  mycursor.execute(sql, (video_id, playlist_id, video_name, video_description, published_date, view_count, like_count,dislike_count,favourite_count,comment_count,duration,thumbnail,caption_status))
                  conn.commit()
               st.write("Videos data inserted")
- 
               for item in commentdetails :
-                 comment_id=item["Comment_Id"]
-                 video_id=item["comment_Video_Id"]
-                 comment_text=item["comment_text"]
-                 comment_author=item["comment_author"]
-                 comment_published_date=item["comment_Published_date"]
-                 sql = """INSERT INTO comments (comment_id, video_id, comment_text, comment_author, comment_published_date)
+               comment_id=item["Comment_Id"]
+               video_id=item["comment_Video_Id"]
+               comment_text=item["comment_text"]
+               comment_author=item["comment_author"]
+               comment_published_date=item["comment_Published_date"]
+               sql = """INSERT INTO comments (comment_id, video_id, comment_text, comment_author, comment_published_date)
                      VALUES (%s, %s, %s, %s, %s)"""
-                 mycursor.execute(sql, (comment_id, video_id, comment_text, comment_author, comment_published_date))
-                 conn.commit()
-              conn.close()          
+               mycursor.execute(sql, (comment_id, video_id, comment_text, comment_author, comment_published_date))
+               conn.commit()
               st.write("comments data data inserted")
+              conn.close()
 
         def get_channelids(self):
           conn=mysql.connect(host='localhost', password='Thayar@123',user='root', database='youtube_data')
@@ -223,14 +219,39 @@ class ytdata:
             mycursor=conn.cursor()
             query="select channel_id from youtube_data.channel"
             mycursor.execute(query)
-          records=mycursor.fetchall()
-          conn.close()
-          df_channel=[]
-          for row in records:
-            df_channel.append(row[0])
-            return df_channel
-             
-        
+            records=mycursor.fetchall()
+            conn.close()
+          return [row[0] for row in records]
+                       
+        def getresult_dropdownvalue(self):
+          conn=mysql.connect(host='localhost', password='Thayar@123',user='root', database='youtube_data')
+          if conn.is_connected():
+               print("connection established....")
+               mycursor=conn.cursor()
+               query="select * from  youtube_data.playlist where channel_id="+"'"+self.channel_id+"'"+""
+               mycursor.execute(query)
+               playlist_records=mycursor.fetchall()
+               st.dataframe(playlist_records)
+               value=[row[0] for row in playlist_records]
+               playlist_id=str(value[0])
+
+               query="select * from youtube_data.videos where playlist_id="+"'"+playlist_id+"'"+""
+               mycursor.execute(query)
+               videos_records=mycursor.fetchall()
+               st.dataframe(videos_records)
+
+               query="select * from youtube_data.comments"
+               mycursor.execute(query)
+               comments_records=mycursor.fetchall()
+               conn.close()
+               st.dataframe(comments_records)
+          st.write("Retreived values")     
+
+
+
+               
+
+
 ##API_KEY="AIzaSyDTEuSGeDbe-0cHF1TtIFn5QpinQxDbH4M"
 
 # apikey "AIzaSyDsV3XamndmMCZF0XQrmOrxDLXo6e1eCH4"
@@ -238,14 +259,21 @@ class ytdata:
 #Guvi email
 st.title("YouTube Channel Details")
 channelid=st.text_input("Enter Channel ID")
+#channelid='UCTLRQJFrtiDPxl_yoOv-jWw'
 
 if channelid:
       Channel_id=channelid.strip()
+      st.write(Channel_id)
       data=ytdata(None,Channel_id,None,None)
       data.get_youtube_data()
       channelidsfromsql=data.get_channelids()
+      
       dropdown_selected_value=st.selectbox("select the channel ID",channelidsfromsql)
-      st.write(dropdown_selected_value)
+      if dropdown_selected_value:
+          data=ytdata(None,dropdown_selected_value,None,None)
+          data.getresult_dropdownvalue()
+     
+     
 
 
 
