@@ -133,7 +133,8 @@ class ytdata:
              return all_comment_details
         
         def get_youtube_data(self):
-              API_KEY="AIzaSyAyXZl_Dih88EU0dlMZEyU4faUHrJEgA4Q"
+              #API_KEY="AIzaSyAyXZl_Dih88EU0dlMZEyU4faUHrJEgA4Q"
+              API_KEY="AIzaSyCcWv1UW7N1FNGhGz84Ny6JSYzRaiIUS8w"
               conn=mysql.connect(host='localhost', password='Thayar@123',user='root', database='youtube_data')
               if conn.is_connected():
                 st.write("connection established....")
