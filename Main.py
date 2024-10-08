@@ -133,8 +133,8 @@ class ytdata:
              return all_comment_details
         
         def get_youtube_data(self):
-              #API_KEY="AIzaSyAyXZl_Dih88EU0dlMZEyU4faUHrJEgA4Q"
-              API_KEY="AIzaSyCcWv1UW7N1FNGhGz84Ny6JSYzRaiIUS8w"
+             
+              API_KEY=""
               conn=mysql.connect(host='localhost', password='Thayar@123',user='root', database='youtube_data')
               if conn.is_connected():
                 st.write("connection established....")
@@ -225,7 +225,7 @@ class ytdata:
           return [row[0] for row in records]
                        
         def getresult_dropdownvalue(self):
-          conn=mysql.connect(host='localhost', password='Thayar@123',user='root', database='youtube_data')
+          conn=mysql.connect(host='localhost', password='',user='root', database='youtube_data')
           if conn.is_connected():
                print("connection established....")
                mycursor=conn.cursor()
@@ -253,9 +253,7 @@ class ytdata:
                
 
 
-##API_KEY="AIzaSyDTEuSGeDbe-0cHF1TtIFn5QpinQxDbH4M"
 
-# apikey "AIzaSyDsV3XamndmMCZF0XQrmOrxDLXo6e1eCH4"
 #Channel_id="UCzh5hQc_O3r3xjh9sXrM7-A"
 #Guvi email
 st.title("YouTube Channel Details")
